@@ -6,7 +6,7 @@ from modules.users.entity import User
 class UsersRepository: 
     def validate(id: int, password: int):
         try:
-            result = db_session.query(User).filter(User.id == id & User.password == password).first()
+            result = db_session.query(User).filter((User.id == id) & (User.password == password)).first()
             return result
         
         except Exception as e:
