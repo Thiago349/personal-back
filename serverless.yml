@@ -1,4 +1,4 @@
-service: jammatch-backend
+service: personal-backend
 
 plugins:
   - serverless-wsgi
@@ -16,7 +16,7 @@ provider:
   environment:
   ecr: 
     images:
-      jammatch-img: 
+      personal-img: 
         path: ./
         platform: linux/amd64
 
@@ -43,7 +43,7 @@ custom:
 functions:
   app:
     image:
-      name: jammatch-img
+      name: personal-img
       command: 
         - app.handler
     events:
