@@ -1,0 +1,62 @@
+service: jammatch-backend
+
+plugins:
+  - serverless-wsgi
+  - serverless-apigw-binary
+  - serverless-dotenv-plugin
+  
+useDotenv: true
+
+provider:
+  stage: ${opt:stage,'dev'} 
+  name: aws
+  runtime: python3.9
+  region: us-east-1
+  timeout: 30
+  environment:
+  ecr: 
+    images:
+      jammatch-img: 
+        path: ./
+        platform: linux/amd64
+
+custom:  
+  wsgi:
+    app: app.app
+    packRequirements: false
+
+  apigwBinary:
+    types:
+      - 'multipart/form-data'
+
+  dotenv:
+    basePath: ./
+    include:
+      - DB_HOST
+      - DB_NAME
+      - DB_PORT
+      - MASTER_USER
+      - MASTER_PASSWORD
+      - ADMIN_ACCESS_KEY_ID
+      - ADMIN_SECRET_ACCESS_KEY
+      - COGNITO_CLIENT_ID
+      - COGNITO_CLIENT_SECRET
+      - S3_BUCKET_ID
+      - S3_BUCKET_SECRET
+      - SPOTIFY_CLIENT_ID
+      - SPOTIFY_CLIENT_SECRET
+      - SPOTIFY_REDIRECT_URI
+
+functions:
+  app:
+    image:
+      name: jammatch-img
+      command: 
+        - app.handler
+    events:
+      - http: 
+          method: ANY
+          path: /{proxy+}
+          cors:
+            origin: '*'
+            headers: '*'

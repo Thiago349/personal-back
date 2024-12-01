@@ -1,0 +1,50 @@
+name: Deploy to AWS Lambda
+
+on:
+  push:
+    branches:
+      - main
+
+jobs:
+  deploy:
+    name: deploy
+    runs-on: ubuntu-latest
+
+    steps:
+      - name: Check out the repository
+        uses: actions/checkout@v3
+
+      - name: Set up Python
+        uses: actions/setup-python@v4
+        with:
+          python-version: 3.9
+
+      - name: Install Node.js
+        uses: actions/setup-node@v3
+        with:
+          node-version: '18'
+
+      - name: Install Serverless Framework
+        run: npm install -g serverless
+
+      - name: Install project dependencies
+        run: npm install
+
+      - name: Set up AWS credentials
+        uses: aws-actions/configure-aws-credentials@v3
+        with:
+          aws-access-key-id: ${{ secrets.ADMIN_ACCESS_KEY_ID }}
+          aws-secret-access-key: ${{ secrets.ADMIN_SECRET_ACCESS_KEY }}
+          aws-region: us-east-1
+
+      - name: Building .env file
+        run: |
+          touch .env
+          echo DB_HOST='${{ vars.DB_HOST }}' >> .env
+          echo DB_NAME='${{ vars.DB_NAME }}' >> .env
+          echo DB_PORT=${{ vars.DB_PORT }} >> .env
+          echo MASTER_USER='${{ vars.MASTER_USER }}' >> .env
+          echo MASTER_PASSWORD='${{ secrets.MASTER_PASSWORD }}' >> .env
+
+      - name: Deploy to AWS Lambda          
+        run: serverless deploy --stage prod
